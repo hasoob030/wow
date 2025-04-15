@@ -36,9 +36,6 @@ if %errorlevel% neq 0 (
 )
 
 :end
-echo.
-echo imcompatible client l1./-9  error 8562 not found syntax error index.js
-echo.
-pause
+pause >nul
 endlocal
 "@
